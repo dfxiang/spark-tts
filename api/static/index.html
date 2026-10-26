@@ -1,0 +1,1600 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Spark Voice Studio</title>
+  <style>
+    :root {
+      --background: #f6f7f9;
+      --surface: #ffffff;
+      --surface-soft: #f9fafb;
+      --foreground: #172033;
+      --muted: #5c6575;
+      --border: #dce1e8;
+      --border-strong: #c5ccd6;
+      --primary: #b42318;
+      --primary-hover: #912018;
+      --primary-soft: #fff1f0;
+      --accent: #2457c5;
+      --accent-soft: #eef4ff;
+      --success: #067647;
+      --error: #b42318;
+      --focus: #2457c5;
+      --shadow: 0 18px 50px rgba(23, 32, 51, 0.08);
+      --radius-lg: 24px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --font: Inter, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-width: 320px;
+      min-height: 100dvh;
+      margin: 0;
+      color: var(--foreground);
+      background:
+        radial-gradient(circle at 10% -10%, rgba(180, 35, 24, 0.07), transparent 32rem),
+        radial-gradient(circle at 95% 5%, rgba(36, 87, 197, 0.06), transparent 28rem),
+        var(--background);
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button,
+    label[for],
+    select {
+      cursor: pointer;
+    }
+
+    button,
+    input,
+    textarea,
+    select,
+    a {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :focus-visible {
+      outline: 3px solid rgba(36, 87, 197, 0.38);
+      outline-offset: 3px;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 100;
+      padding: 10px 14px;
+      color: #ffffff;
+      background: var(--foreground);
+      border-radius: var(--radius-sm);
+      transform: translateY(-150%);
+      transition: transform 180ms ease;
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    .shell {
+      width: min(1120px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 28px 0 42px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      min-height: 44px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      color: var(--foreground);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      place-items: center;
+      color: #ffffff;
+      background: var(--primary);
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(180, 35, 24, 0.2);
+    }
+
+    .brand-mark svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .service-state {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 36px;
+      padding: 0 12px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .state-dot {
+      width: 8px;
+      height: 8px;
+      background: #8a94a6;
+      border-radius: 50%;
+    }
+
+    .service-state[data-state="ready"] .state-dot {
+      background: var(--success);
+    }
+
+    .service-state[data-state="error"] .state-dot {
+      background: var(--error);
+    }
+
+    .docs-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding: 0 6px;
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .docs-link:hover {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    .intro {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
+      align-items: end;
+      gap: 44px;
+      padding: 64px 0 34px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      width: 22px;
+      height: 2px;
+      content: "";
+      background: currentColor;
+    }
+
+    h1 {
+      max-width: 720px;
+      margin: 0;
+      font-size: clamp(20px, 3.2vw, 36px);
+      font-weight: 680;
+      line-height: 1.04;
+      letter-spacing: -0.055em;
+      text-wrap: balance;
+    }
+
+    .intro-copy {
+      max-width: 390px;
+      margin: 0 0 5px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.7;
+    }
+
+    .workspace {
+      overflow: hidden;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+    }
+
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+
+    .form-section {
+      min-width: 0;
+      padding: 32px;
+    }
+
+    .form-section + .form-section {
+      border-left: 1px solid var(--border);
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 26px;
+    }
+
+    .step-number {
+      display: grid;
+      flex: 0 0 auto;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      color: var(--primary);
+      background: var(--primary-soft);
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 750;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .section-heading h2,
+    .result-heading h2 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 680;
+      letter-spacing: -0.02em;
+    }
+
+    .section-heading p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .field {
+      margin-top: 20px;
+    }
+
+    .field:first-of-type {
+      margin-top: 0;
+    }
+
+    .field-label {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      color: var(--foreground);
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .optional {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .upload-card {
+      display: flex;
+      min-height: 142px;
+      align-items: center;
+      justify-content: center;
+      padding: 22px;
+      text-align: center;
+      background: var(--surface-soft);
+      border: 1px dashed var(--border-strong);
+      border-radius: var(--radius-md);
+      transition: border-color 180ms ease, background-color 180ms ease;
+    }
+
+    .upload-card:hover {
+      background: #f6f8fb;
+      border-color: var(--accent);
+    }
+
+    .upload-card:focus-within {
+      outline: 3px solid rgba(36, 87, 197, 0.28);
+      outline-offset: 3px;
+    }
+
+    .upload-icon {
+      display: grid;
+      width: 42px;
+      height: 42px;
+      margin: 0 auto 10px;
+      place-items: center;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border-radius: 12px;
+    }
+
+    .upload-icon svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .upload-title {
+      display: block;
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .upload-hint {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .reference-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 28px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .reference-name {
+      min-width: 0;
+      overflow: hidden;
+      color: var(--foreground);
+      font-weight: 600;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .reference-size::before {
+      margin-right: 10px;
+      content: "·";
+    }
+
+    .voice-selector-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+    }
+
+    .voice-metadata {
+      margin-top: 14px;
+      padding: 16px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+
+    .voice-metadata-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .voice-metadata-head strong {
+      overflow-wrap: anywhere;
+      font-size: 15px;
+    }
+
+    .voice-metadata-id {
+      color: var(--muted);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 11px;
+      text-align: right;
+      overflow-wrap: anywhere;
+    }
+
+    .voice-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .voice-meta-item {
+      padding: 10px 11px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    .voice-meta-label {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .voice-meta-value {
+      display: block;
+      margin-top: 3px;
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 650;
+      overflow-wrap: anywhere;
+    }
+
+    .voice-prompt-block {
+      margin-top: 10px;
+      padding: 11px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    .voice-prompt-block p {
+      margin: 4px 0 0;
+      color: var(--foreground);
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    #referencePlayer {
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    .secondary-button {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 16px;
+      color: var(--foreground);
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 650;
+      transition: background-color 160ms ease, border-color 160ms ease;
+    }
+
+    .secondary-button:hover {
+      background: var(--surface-soft);
+      border-color: #96a0ae;
+    }
+
+    .secondary-button:active {
+      background: #f0f3f7;
+    }
+
+    .secondary-button[data-recording="true"] {
+      color: var(--primary);
+      background: var(--primary-soft);
+      border-color: #f0aaa5;
+    }
+
+    .secondary-button svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .record-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .record-hint {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    textarea,
+    select {
+      width: 100%;
+      min-height: 46px;
+      color: var(--foreground);
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    select {
+      padding: 0 13px;
+    }
+
+    textarea {
+      min-height: 112px;
+      padding: 12px 13px;
+      line-height: 1.6;
+      resize: vertical;
+    }
+
+    input[type="text"]:hover,
+    input[type="password"]:hover,
+    textarea:hover,
+    select:hover {
+      border-color: #9da7b5;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--focus);
+      box-shadow: 0 0 0 3px rgba(36, 87, 197, 0.13);
+      outline: none;
+    }
+
+    .helper {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .speed-value {
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      min-height: 44px;
+      margin: 0;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .access-field {
+      margin-top: 18px;
+      padding: 14px;
+      background: var(--accent-soft);
+      border: 1px solid #cfdcff;
+      border-radius: var(--radius-md);
+    }
+
+    .access-field .helper {
+      color: #3e557d;
+    }
+
+    .generate-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 26px;
+    }
+
+    .primary-button {
+      display: inline-flex;
+      min-height: 50px;
+      flex: 1 1 auto;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 0 22px;
+      color: #ffffff;
+      background: var(--primary);
+      border: 1px solid var(--primary);
+      border-radius: 12px;
+      box-shadow: 0 8px 18px rgba(180, 35, 24, 0.16);
+      font-size: 15px;
+      font-weight: 700;
+      transition: background-color 160ms ease, border-color 160ms ease, transform 120ms ease;
+    }
+
+    .primary-button:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+    }
+
+    .primary-button:active {
+      transform: translateY(1px);
+    }
+
+    .primary-button:disabled {
+      cursor: wait;
+      opacity: 0.72;
+    }
+
+    .primary-button svg {
+      width: 19px;
+      height: 19px;
+    }
+
+    .button-spinner {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.36);
+      border-top-color: #ffffff;
+      border-radius: 50%;
+      animation: spin 800ms linear infinite;
+    }
+
+    .primary-button[aria-busy="true"] .button-icon {
+      display: none;
+    }
+
+    .primary-button[aria-busy="true"] .button-spinner {
+      display: block;
+    }
+
+    .request-status {
+      min-height: 24px;
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .error-message {
+      margin: 12px 0 0;
+      padding: 11px 13px;
+      color: #8f1d14;
+      background: var(--primary-soft);
+      border: 1px solid #f0bbb7;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .result {
+      padding: 30px 32px 32px;
+      border-top: 1px solid var(--border);
+    }
+
+    .result-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .result-ready {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--success);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .result-ready svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .result-empty {
+      display: grid;
+      min-height: 112px;
+      place-items: center;
+      padding: 22px;
+      color: var(--muted);
+      text-align: center;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 14px;
+    }
+
+    .player-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 14px;
+    }
+
+    #resultAudio {
+      width: 100%;
+      min-height: 54px;
+    }
+
+    .download-link {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 0 15px;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border: 1px solid #cfdcff;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 650;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .download-link:hover {
+      background: #e4ecff;
+    }
+
+    .download-link svg {
+      width: 17px;
+      height: 17px;
+    }
+
+    .result-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .metric-card {
+      min-width: 0;
+      padding: 13px 14px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    .metric-label {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .metric-value {
+      display: block;
+      margin-top: 5px;
+      overflow: hidden;
+      color: var(--foreground);
+      font-size: 15px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .api-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-top: 18px;
+      padding: 14px 16px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+    }
+
+    .api-note svg {
+      flex: 0 0 auto;
+      width: 18px;
+      height: 18px;
+      margin-top: 1px;
+      color: var(--accent);
+    }
+
+    .api-note code {
+      color: var(--foreground);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding-top: 22px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .footer p {
+      margin: 0;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @media (max-width: 860px) {
+      .intro {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding-top: 46px;
+      }
+
+      .intro-copy {
+        max-width: 620px;
+      }
+
+      .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .form-section + .form-section {
+        border-top: 1px solid var(--border);
+        border-left: 0;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .shell {
+        width: min(100% - 24px, 1120px);
+        padding-top: 16px;
+      }
+
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+        gap: 5px;
+      }
+
+      .topbar {
+        align-items: stretch;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .service-state {
+        padding: 0 9px;
+        font-size: 12px;
+      }
+
+      .docs-link {
+        padding: 0 4px;
+        font-size: 13px;
+      }
+
+      .intro {
+        padding: 38px 4px 25px;
+      }
+
+      h1 {
+        font-size: clamp(19px, 6.5vw, 27.5px);
+      }
+
+      .form-section,
+      .result {
+        padding: 24px 20px;
+      }
+
+      .options,
+      .player-row {
+        grid-template-columns: 1fr;
+      }
+
+      .voice-selector-row,
+      .voice-meta-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .result-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .record-row {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .secondary-button {
+        width: 100%;
+      }
+
+      .download-link {
+        width: 100%;
+      }
+
+      .footer {
+        flex-direction: column;
+        gap: 7px;
+      }
+
+      #referencePlayer {
+        width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Spark Voice Studio 首页">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 10v4"/>
+          </svg>
+        </span>
+        <span>Spark Voice Studio</span>
+      </a>
+
+      <div class="header-actions">
+        <div class="service-state" id="serviceState" data-state="loading">
+          <span class="state-dot" aria-hidden="true"></span>
+          <span id="serviceText">正在连接服务</span>
+        </div>
+        <a class="docs-link" href="/voices">声音管理</a>
+        <a class="docs-link" href="/docs" target="_blank" rel="noreferrer">API 文档</a>
+      </div>
+    </header>
+
+    <main id="main" tabindex="-1">
+      <section class="intro" aria-labelledby="pageTitle">
+        <div>
+          <span class="eyebrow">Voice cloning</span>
+          <h1 id="pageTitle">让每段文字，都有熟悉的声音。</h1>
+        </div>
+        <p class="intro-copy">
+          从声音库选择一个参考声音，再输入最多 4096 字的长文本。服务会自动按标点分段、批量合成，并返回一个完整音频。
+        </p>
+      </section>
+
+      <form class="workspace" id="speechForm" novalidate>
+        <div class="workspace-grid">
+          <section class="form-section" aria-labelledby="voiceHeading">
+            <div class="section-heading">
+              <span class="step-number" aria-hidden="true">01</span>
+              <div>
+                <h2 id="voiceHeading">参考声音</h2>
+                <p>选择已管理的参考声音，并查看对应的音频 metadata。</p>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="voiceSelect">选择声音</label>
+              <div class="voice-selector-row">
+                <select id="voiceSelect" name="voice" disabled>
+                  <option>正在加载声音列表…</option>
+                </select>
+                <button class="secondary-button" id="refreshVoices" type="button">刷新</button>
+              </div>
+              <p class="helper">声音的参考文本、时长和创建时间来自 metadata。新增或修改声音请前往 <a class="docs-link" href="/voices">声音管理</a>。</p>
+              <div class="voice-metadata" id="voiceMetadata" hidden>
+                <div class="voice-metadata-head">
+                  <strong id="voiceMetaName">—</strong>
+                  <code class="voice-metadata-id" id="voiceMetaId">—</code>
+                </div>
+                <div class="voice-meta-grid">
+                  <div class="voice-meta-item">
+                    <span class="voice-meta-label">参考音频时长</span>
+                    <strong class="voice-meta-value" id="voiceMetaDuration">—</strong>
+                  </div>
+                  <div class="voice-meta-item">
+                    <span class="voice-meta-label">创建时间</span>
+                    <strong class="voice-meta-value" id="voiceMetaCreated">—</strong>
+                  </div>
+                </div>
+                <div class="voice-prompt-block">
+                  <span class="voice-meta-label">参考文本</span>
+                  <p id="voiceMetaPrompt">未填写</p>
+                </div>
+                <audio id="referencePlayer" controls preload="metadata" hidden aria-label="参考音频预览"></audio>
+              </div>
+            </div>
+          </section>
+
+          <section class="form-section" aria-labelledby="scriptHeading">
+            <div class="section-heading">
+              <span class="step-number" aria-hidden="true">02</span>
+              <div>
+                <h2 id="scriptHeading">合成内容</h2>
+                <p>输入希望使用参考声音朗读的文字。</p>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="speechText">
+                需要朗读的文本
+                <span class="optional"><span id="speechCharCount">0</span> / 4096 字符</span>
+              </label>
+              <textarea
+                id="speechText"
+                name="speechText"
+                maxlength="4096"
+                required
+                placeholder="在这里输入要合成的文字"
+                aria-describedby="speechTextHelp"
+              ></textarea>
+              <p class="helper" id="speechTextHelp">自动在标点处拆分为约 32～128 字符的分段，批量合成后按原顺序返回一个音频。长文本可能需要一段时间，请保持页面打开。</p>
+            </div>
+
+            <div class="options">
+              <div>
+                <label class="field-label" for="responseFormat">输出格式</label>
+                <select id="responseFormat" name="responseFormat">
+                  <option value="mp3">MP3</option>
+                  <option value="wav">WAV</option>
+                  <option value="flac">FLAC</option>
+                  <option value="opus">Opus</option>
+                  <option value="aac">AAC</option>
+                  <option value="pcm">PCM</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label" for="speed">
+                  语速
+                  <span class="speed-value" id="speedValue">1.00×</span>
+                </label>
+                <input id="speed" name="speed" type="range" min="0.5" max="2" step="0.05" value="1">
+              </div>
+            </div>
+
+            <div class="access-field" id="accessField" hidden>
+              <label class="field-label" for="apiKey">访问密钥</label>
+              <input
+                id="apiKey"
+                name="apiKey"
+                type="password"
+                autocomplete="off"
+                placeholder="输入服务配置的 SPARK_TTS_API_KEY"
+                aria-describedby="apiKeyHelp"
+              >
+              <p class="helper" id="apiKeyHelp">此部署已启用鉴权。密钥仅保留在当前页面内，不会写入存储。</p>
+            </div>
+
+            <div class="generate-row">
+              <button class="primary-button" id="generateButton" type="submit">
+                <svg class="button-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12v4a3 3 0 0 0 3 3h8a3 3 0 0 0 3-3v-4"/>
+                  <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5"/>
+                </svg>
+                <span class="button-spinner" aria-hidden="true"></span>
+                <span id="generateButtonText">生成语音</span>
+              </button>
+            </div>
+            <p class="request-status" id="requestStatus" role="status" aria-live="polite"></p>
+            <p class="error-message" id="errorMessage" role="alert" hidden></p>
+          </section>
+        </div>
+
+        <section class="result" aria-labelledby="resultHeading">
+          <div class="result-heading">
+            <h2 id="resultHeading" tabindex="-1">试听结果</h2>
+            <span class="result-ready" id="resultReady" hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="m5 12 4 4L19 6"/>
+              </svg>
+              已生成
+            </span>
+          </div>
+          <div class="result-empty" id="resultEmpty">生成完成后，音频会显示在这里。</div>
+          <div class="player-row" id="playerRow" hidden>
+            <audio id="resultAudio" controls preload="metadata" aria-label="生成的语音"></audio>
+            <a class="download-link" id="downloadLink" href="#" download>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 4v11m0 0 4-4m-4 4-4-4"/>
+                <path d="M5 19h14"/>
+              </svg>
+              下载音频
+            </a>
+          </div>
+          <div class="result-metrics" id="resultMetrics" hidden aria-label="生成结果参数">
+            <div class="metric-card">
+              <span class="metric-label">音频时长</span>
+              <strong class="metric-value" id="metricDuration">—</strong>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">生成耗时</span>
+              <strong class="metric-value" id="metricElapsed">—</strong>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label" title="推理耗时除以原始音频时长">推理 RTF</span>
+              <strong class="metric-value" id="metricRtf">—</strong>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Batch Size</span>
+              <strong class="metric-value" id="metricBatchSize">—</strong>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">分段数</span>
+              <strong class="metric-value" id="metricSegments">—</strong>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">输出格式</span>
+              <strong class="metric-value" id="metricFormat">—</strong>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">语速</span>
+              <strong class="metric-value" id="metricSpeed">—</strong>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">输入字符数</span>
+              <strong class="metric-value" id="metricInputChars">—</strong>
+            </div>
+          </div>
+        </section>
+      </form>
+
+      <aside class="api-note" aria-label="API 信息">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M12 11v5M12 8h.01"/>
+        </svg>
+        <span>
+          此页面调用 <code>POST /v1/audio/long_text</code>，后台通过批量推理接口合成最多 4096 字符的长文本。
+          参考声音从 <code>/api/voices</code> 读取，可继续使用 voice ID 或唯一显示名称调用 OpenAI 兼容接口。
+        </span>
+      </aside>
+
+      <footer class="footer">
+        <p>Spark-TTS · CPU-compatible voice cloning</p>
+        <p>请仅在获得声音所有者许可的情况下使用克隆功能。</p>
+      </footer>
+    </main>
+  </div>
+
+  <script>
+    const MAX_TEXT_CHARS = 4096;
+    const MIN_SEGMENT_CHARS = 32;
+    const MAX_SEGMENT_CHARS = 128;
+
+    const form = document.getElementById("speechForm");
+    const voiceSelect = document.getElementById("voiceSelect");
+    const refreshVoices = document.getElementById("refreshVoices");
+    const voiceMetadata = document.getElementById("voiceMetadata");
+    const voiceMetaName = document.getElementById("voiceMetaName");
+    const voiceMetaId = document.getElementById("voiceMetaId");
+    const voiceMetaDuration = document.getElementById("voiceMetaDuration");
+    const voiceMetaCreated = document.getElementById("voiceMetaCreated");
+    const voiceMetaPrompt = document.getElementById("voiceMetaPrompt");
+    const referencePlayer = document.getElementById("referencePlayer");
+    const speechText = document.getElementById("speechText");
+    const speechCharCount = document.getElementById("speechCharCount");
+    const responseFormat = document.getElementById("responseFormat");
+    const speed = document.getElementById("speed");
+    const speedValue = document.getElementById("speedValue");
+    const accessField = document.getElementById("accessField");
+    const apiKey = document.getElementById("apiKey");
+    const generateButton = document.getElementById("generateButton");
+    const generateButtonText = document.getElementById("generateButtonText");
+    const requestStatus = document.getElementById("requestStatus");
+    const errorMessage = document.getElementById("errorMessage");
+    const resultHeading = document.getElementById("resultHeading");
+    const resultReady = document.getElementById("resultReady");
+    const resultEmpty = document.getElementById("resultEmpty");
+    const playerRow = document.getElementById("playerRow");
+    const resultMetrics = document.getElementById("resultMetrics");
+    const metricDuration = document.getElementById("metricDuration");
+    const metricElapsed = document.getElementById("metricElapsed");
+    const metricRtf = document.getElementById("metricRtf");
+    const metricBatchSize = document.getElementById("metricBatchSize");
+    const metricSegments = document.getElementById("metricSegments");
+    const metricFormat = document.getElementById("metricFormat");
+    const metricSpeed = document.getElementById("metricSpeed");
+    const metricInputChars = document.getElementById("metricInputChars");
+    const resultAudio = document.getElementById("resultAudio");
+    const downloadLink = document.getElementById("downloadLink");
+    const serviceState = document.getElementById("serviceState");
+    const serviceText = document.getElementById("serviceText");
+
+    const state = {
+      voices: [],
+      voiceId: null,
+      voicePreviewUrl: null,
+      voicePreviewRequest: 0,
+      resultUrl: null,
+      elapsedTimer: null
+    };
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+
+    function formatDuration(seconds) {
+      const value = Number(seconds);
+      if (!Number.isFinite(value) || value < 0) {
+        return "—";
+      }
+      if (value < 60) {
+        return `${value.toFixed(2)} 秒`;
+      }
+      const minutes = Math.floor(value / 60);
+      const remainder = value - minutes * 60;
+      return `${minutes} 分 ${remainder.toFixed(1)} 秒`;
+    }
+
+    function setMetric(element, value) {
+      element.textContent = value || "—";
+    }
+
+    function errorFromPayload(payload, fallback) {
+      if (payload && payload.error && payload.error.message) {
+        return payload.error.message;
+      }
+      if (payload && payload.detail) {
+        return typeof payload.detail === "string" ? payload.detail : fallback;
+      }
+      return fallback;
+    }
+
+    async function readError(response) {
+      const contentType = response.headers.get("content-type") || "";
+      try {
+        if (contentType.includes("application/json")) {
+          return errorFromPayload(await response.json(), `请求失败（${response.status}）`);
+        }
+        const text = await response.text();
+        return text || `请求失败（${response.status}）`;
+      } catch {
+        return `请求失败（${response.status}）`;
+      }
+    }
+
+    function clearError() {
+      errorMessage.hidden = true;
+      errorMessage.textContent = "";
+    }
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.hidden = false;
+    }
+
+    function updateServiceState(kind, text) {
+      serviceState.dataset.state = kind;
+      serviceText.textContent = text;
+    }
+
+    function formatDateTime(value) {
+      if (!value) return "未知";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return String(value);
+      return date.toLocaleString("zh-CN", { hour12: false });
+    }
+
+    async function loadVoicePreview(voiceId) {
+      const requestId = ++state.voicePreviewRequest;
+      referencePlayer.hidden = true;
+      try {
+        const response = await fetch(
+          `/api/voices/${encodeURIComponent(voiceId)}/audio`,
+          { headers: apiHeaders() }
+        );
+        if (!response.ok) {
+          throw new Error(await readError(response));
+        }
+        const blob = await response.blob();
+        if (requestId !== state.voicePreviewRequest) return;
+        if (state.voicePreviewUrl) {
+          URL.revokeObjectURL(state.voicePreviewUrl);
+        }
+        state.voicePreviewUrl = URL.createObjectURL(blob);
+        referencePlayer.src = state.voicePreviewUrl;
+        referencePlayer.hidden = false;
+      } catch (error) {
+        if (requestId === state.voicePreviewRequest) {
+          setStatus(`参考音频加载失败：${error.message}`);
+        }
+      }
+    }
+
+    function renderSelectedVoice() {
+      const voice = state.voices.find((item) => item.id === state.voiceId);
+      if (!voice) {
+        state.voiceId = null;
+        voiceMetadata.hidden = true;
+        referencePlayer.hidden = true;
+        return;
+      }
+      voiceMetaName.textContent = voice.name || voice.id;
+      voiceMetaId.textContent = voice.id;
+      voiceMetaDuration.textContent = Number.isFinite(Number(voice.duration_seconds))
+        ? `${Number(voice.duration_seconds).toFixed(2)} 秒`
+        : "未知";
+      voiceMetaCreated.textContent = formatDateTime(voice.created_at);
+      voiceMetaPrompt.textContent = voice.prompt_text || "未填写";
+      voiceMetadata.hidden = false;
+      loadVoicePreview(voice.id);
+    }
+
+    async function loadVoices() {
+      voiceSelect.disabled = true;
+      voiceMetadata.hidden = true;
+      voiceSelect.innerHTML = '<option>正在加载声音列表…</option>';
+      try {
+        const response = await fetch("/api/voices", { headers: apiHeaders() });
+        if (!response.ok) {
+          throw new Error(await readError(response));
+        }
+        const payload = await response.json();
+        state.voices = payload.data || [];
+        if (!state.voices.length) {
+          state.voiceId = null;
+          voiceSelect.innerHTML = '<option value="">没有可用声音</option>';
+          showError("声音库为空，请先到声音管理页面上传参考音频。");
+          return;
+        }
+        voiceSelect.innerHTML = state.voices.map((voice) => (
+          `<option value="${escapeHtml(voice.id)}">${escapeHtml(voice.name)} — ${escapeHtml(voice.id)}</option>`
+        )).join("");
+        const previousId = state.voiceId;
+        state.voiceId = state.voices.some((voice) => voice.id === previousId)
+          ? previousId
+          : state.voices[0].id;
+        voiceSelect.value = state.voiceId;
+        voiceSelect.disabled = false;
+        clearError();
+        renderSelectedVoice();
+        setStatus(`已加载 ${state.voices.length} 个声音。`);
+      } catch (error) {
+        state.voices = [];
+        state.voiceId = null;
+        voiceSelect.innerHTML = '<option value="">声音列表加载失败</option>';
+        showError(error.message);
+      }
+    }
+
+    function setStatus(message, busy = false) {
+      if (!busy && state.elapsedTimer) {
+        clearInterval(state.elapsedTimer);
+        state.elapsedTimer = null;
+      }
+      requestStatus.textContent = message;
+    }
+
+    function startElapsedStatus(prefix) {
+      const startedAt = Date.now();
+      if (state.elapsedTimer) {
+        clearInterval(state.elapsedTimer);
+      }
+      const tick = () => {
+        const seconds = Math.floor((Date.now() - startedAt) / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const remainder = String(seconds % 60).padStart(2, "0");
+        setStatus(`${prefix} ${minutes}:${remainder}`, true);
+      };
+      tick();
+      state.elapsedTimer = setInterval(tick, 1000);
+    }
+
+    function setBusy(busy) {
+      form.setAttribute("aria-busy", String(busy));
+      generateButton.disabled = busy;
+      generateButton.setAttribute("aria-busy", String(busy));
+      generateButtonText.textContent = busy ? "正在生成" : "生成语音";
+      voiceSelect.disabled = busy || state.voices.length === 0;
+      refreshVoices.disabled = busy;
+      speechText.disabled = busy;
+      responseFormat.disabled = busy;
+      speed.disabled = busy;
+      apiKey.disabled = busy;
+    }
+
+    function apiHeaders() {
+      const headers = {};
+      if (apiKey.value.trim()) {
+        headers.Authorization = `Bearer ${apiKey.value.trim()}`;
+      }
+      return headers;
+    }
+
+    async function generateSpeech(event) {
+      event.preventDefault();
+      clearError();
+
+      if (!state.voiceId) {
+        showError("请先选择一个参考声音。");
+        voiceSelect.focus();
+        return;
+      }
+      if (!speechText.value.trim()) {
+        showError("请输入需要朗读的文本。");
+        speechText.focus();
+        return;
+      }
+      if (speechText.value.length > MAX_TEXT_CHARS) {
+        showError("合成文本不能超过 4096 个字符。");
+        speechText.focus();
+        return;
+      }
+
+      setBusy(true);
+      resultReady.hidden = true;
+      resultMetrics.hidden = true;
+
+      try {
+        const voiceId = state.voiceId;
+        const generationStartedAt = performance.now();
+        startElapsedStatus("正在合成语音…");
+
+        const response = await fetch("/v1/audio/long_text", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...apiHeaders()
+          },
+          body: JSON.stringify({
+            model: "spark-tts",
+            input: speechText.value.trim(),
+            voice: voiceId,
+            response_format: responseFormat.value,
+            speed: Number(speed.value),
+            min_segment_chars: MIN_SEGMENT_CHARS,
+            max_segment_chars: MAX_SEGMENT_CHARS
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(await readError(response));
+        }
+
+        const blob = await response.blob();
+        if (!blob.size) {
+          throw new Error("服务返回了空音频，请检查服务日志。");
+        }
+        const generationElapsed = (performance.now() - generationStartedAt) / 1000;
+
+        if (state.resultUrl) {
+          URL.revokeObjectURL(state.resultUrl);
+        }
+        state.resultUrl = URL.createObjectURL(blob);
+        resultAudio.src = state.resultUrl;
+        downloadLink.href = state.resultUrl;
+        downloadLink.download = `spark-voice-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.${responseFormat.value}`;
+        const durationFromHeader = Number.parseFloat(response.headers.get("duration") || "");
+        const rtfFromHeader = Number.parseFloat(response.headers.get("rtf") || "");
+        const batchSizeFromHeader = response.headers.get("batch-size");
+        const segmentCount = response.headers.get("x-spark-tts-segments");
+        const formatLabel = responseFormat.options[responseFormat.selectedIndex]?.text
+          || responseFormat.value.toUpperCase();
+
+        setMetric(metricDuration, formatDuration(durationFromHeader));
+        setMetric(metricElapsed, formatDuration(generationElapsed));
+        setMetric(
+          metricRtf,
+          Number.isFinite(rtfFromHeader) ? rtfFromHeader.toFixed(3) : null
+        );
+        setMetric(metricBatchSize, batchSizeFromHeader);
+        setMetric(metricSegments, segmentCount);
+        setMetric(metricFormat, formatLabel);
+        setMetric(metricSpeed, speedValue.textContent);
+        setMetric(metricInputChars, String(speechText.value.length));
+
+        if (!Number.isFinite(durationFromHeader)) {
+          resultAudio.addEventListener(
+            "loadedmetadata",
+            () => setMetric(metricDuration, formatDuration(resultAudio.duration)),
+            { once: true }
+          );
+        }
+        resultEmpty.hidden = true;
+        playerRow.hidden = false;
+        resultMetrics.hidden = false;
+        resultReady.hidden = false;
+        updateServiceState("ready", "模型已加载");
+        setStatus("语音生成完成，可以试听或下载。");
+        resultHeading.focus();
+      } catch (error) {
+        setStatus("生成未完成。");
+        showError(error instanceof Error ? error.message : "生成失败，请稍后重试。");
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    voiceSelect.addEventListener("change", () => {
+      state.voiceId = voiceSelect.value || null;
+      clearError();
+      renderSelectedVoice();
+    });
+    refreshVoices.addEventListener("click", loadVoices);
+    apiKey.addEventListener("change", loadVoices);
+    speechText.addEventListener("input", () => {
+      speechCharCount.textContent = String(speechText.value.length);
+    });
+    speed.addEventListener("input", () => {
+      speedValue.textContent = `${Number(speed.value).toFixed(2)}×`;
+    });
+    form.addEventListener("submit", generateSpeech);
+    resultAudio.addEventListener("error", () => {
+      showError("音频播放失败，生成的音频可能已损坏。");
+    });
+
+    fetch("/healthz")
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error("health check failed");
+        }
+        return response.json();
+      })
+      .then((health) => {
+        if (health.auth_required) {
+          accessField.hidden = false;
+          updateServiceState("loading", "需要访问密钥");
+        } else if (health.model_loaded) {
+          updateServiceState("ready", "模型已加载");
+        } else {
+          updateServiceState("loading", "模型按需加载");
+        }
+        return loadVoices();
+      })
+      .catch(() => {
+        updateServiceState("error", "服务未连接");
+      });
+  </script>
+</body>
+</html>

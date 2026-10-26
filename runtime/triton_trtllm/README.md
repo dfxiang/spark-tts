@@ -1,5 +1,9 @@
 ## Nvidia Triton Inference Serving Best Practice for Spark TTS
 
+For a BF16 sidecar that leaves the existing API running unchanged, including a
+fixed same-voice latency comparison, see
+[`sidecar/README.md`](sidecar/README.md).
+
 ### Quick Start
 Directly launch the service using docker compose.
 ```sh

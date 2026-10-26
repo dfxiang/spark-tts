@@ -1,0 +1,36 @@
+FROM funasr-cpu:26.9.18
+
+ENV PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# Keep the CPU-only PyTorch, torchaudio, ffmpeg and audio libraries already
+# provided by the base image. Only install Spark-TTS's remaining dependencies.
+ARG PIP_INDEX_URL=https://pypi.org/simple
+COPY requirements.txt .
+RUN grep -Ev '^(torch|torchaudio)==' requirements.txt \
+        > /tmp/spark-tts-requirements.cpu.txt \
+    && python -m pip install \
+        --index-url "${PIP_INDEX_URL}" \
+        -r /tmp/spark-tts-requirements.cpu.txt \
+    && rm /tmp/spark-tts-requirements.cpu.txt
+
+# Keep soxr compatible with the version required by the base image's librosa.
+RUN python -m pip install \
+        --index-url "${PIP_INDEX_URL}" \
+        "soxr>=1.0.0" \
+        "pydantic==2.10.6"
+
+COPY . .
+
+RUN mkdir -p example/results
+
+EXPOSE 8720
+
+CMD ["python", "webui.py", \
+     "--model_dir", "/models/Spark-TTS-0.5B", \
+     "--device", "0", \
+     "--server_name", "0.0.0.0", \
+     "--server_port", "8720"]

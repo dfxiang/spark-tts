@@ -1,0 +1,80 @@
+name: "spark_tts"
+backend: "python"
+max_batch_size: 1
+
+dynamic_batching {
+  max_queue_delay_microseconds: 0
+}
+
+model_transaction_policy {
+  decoupled: false
+}
+
+parameters [
+  {
+    key: "llm_tokenizer_dir"
+    value: {string_value: "/models/Spark-TTS-0.5B/LLM"}
+  },
+  {
+    key: "audio_chunk_duration"
+    value: {string_value: "1.0"}
+  },
+  {
+    key: "audio_chunk_size_scale_factor"
+    value: {string_value: "8.0"}
+  },
+  {
+    key: "max_audio_chunk_duration"
+    value: {string_value: "30.0"}
+  },
+  {
+    key: "audio_chunk_overlap_duration"
+    value: {string_value: "0.1"}
+  },
+  {
+    key: "audio_tokenizer_frame_rate"
+    value: {string_value: "50"}
+  },
+  {
+    key: "max_new_tokens"
+    value: {string_value: "2000"}
+  }
+]
+
+input [
+  {
+    name: "reference_wav"
+    data_type: TYPE_FP32
+    dims: [-1]
+  },
+  {
+    name: "reference_wav_len"
+    data_type: TYPE_INT32
+    dims: [1]
+  },
+  {
+    name: "reference_text"
+    data_type: TYPE_STRING
+    dims: [1]
+  },
+  {
+    name: "target_text"
+    data_type: TYPE_STRING
+    dims: [1]
+  }
+]
+
+output [
+  {
+    name: "waveform"
+    data_type: TYPE_FP32
+    dims: [-1]
+  }
+]
+
+instance_group [
+  {
+    count: 1
+    kind: KIND_CPU
+  }
+]

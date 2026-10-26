@@ -1,0 +1,15 @@
+.git
+.github
+.gradio
+.pytest_cache
+.venv
+**/__pycache__
+**/*.py[cod]
+example/results
+pretrained_models
+results
+data
+venv
+tests
+runtime/triton_trtllm/sidecar/artifacts
+runtime/triton_trtllm/benchmark_results

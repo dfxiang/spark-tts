@@ -12,6 +12,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+# MODIFIED: Spark-TTS engineering optimization fork, 2026.
+# See the repository Git history for the complete change record.
+
 """
 Description:
     This script contains a collection of functions designed to handle various
@@ -22,7 +26,6 @@ import random
 import soxr
 import soundfile
 import torch
-import torchaudio
 import numpy as np
 
 from pathlib import Path
@@ -142,6 +145,8 @@ def audio_highpass_filter(audio, sample_rate, highpass_cutoff_freq):
         sample_rate (ind):
         highpass_cutoff_freq (int):
     """
+
+    import torchaudio
 
     audio = torchaudio.functional.highpass_biquad(
         torch.from_numpy(audio), sample_rate, cutoff_freq=highpass_cutoff_freq

@@ -1,0 +1,231 @@
+{
+  "generated_at": "2026-10-23T17:06:34+08:00",
+  "config": {
+    "base_url": "http://127.0.0.1:9616",
+    "voice": "low-female1",
+    "model": "spark-tts",
+    "text": "人工智能正在改变我们的工作与生活方式，语音合成技术也在快速进步。今天我们用一段固定的中文测试文本，比较不同并发条件下的实时率和响应延迟。",
+    "levels": [
+      1,
+      2,
+      4
+    ],
+    "requests_per_level": 8,
+    "warmups": 1,
+    "cooldown_seconds": 1.0,
+    "timeout_seconds": 180.0
+  },
+  "health": {
+    "status": "ok",
+    "model": "spark-tts",
+    "model_loaded": true,
+    "device": "cuda:0",
+    "llm_dtype": "torch.bfloat16",
+    "prompt_cache_size": 16,
+    "auth_required": false
+  },
+  "gpu": "NVIDIA GeForce RTX 4060 Ti, 610.88, 16380 MiB",
+  "levels": [
+    {
+      "summary": {
+        "concurrency": 1,
+        "requests": 8,
+        "successes": 8,
+        "errors": 0,
+        "wall_seconds": 43.21744251700147,
+        "audio_seconds": 164.64,
+        "mean_latency_seconds": 5.4020853842500856,
+        "p50_latency_seconds": 5.400211356,
+        "p95_latency_seconds": 5.423906750000242,
+        "mean_request_rtf": 0.26249200117833266,
+        "aggregate_rtf": 0.2624966139273656,
+        "audio_seconds_per_wall_second": 3.8095729504408236
+      },
+      "requests": [
+        {
+          "index": 1,
+          "latency_seconds": 5.423906750000242,
+          "audio_seconds": 20.58,
+          "response_bytes": 658604
+        },
+        {
+          "index": 2,
+          "latency_seconds": 5.382171429000664,
+          "audio_seconds": 20.58,
+          "response_bytes": 658604
+        },
+        {
+          "index": 3,
+          "latency_seconds": 5.383214393999879,
+          "audio_seconds": 20.58,
+          "response_bytes": 658604
+        },
+        {
+          "index": 4,
+          "latency_seconds": 5.421443907000139,
+          "audio_seconds": 20.58,
+          "response_bytes": 658604
+        },
+        {
+          "index": 5,
+          "latency_seconds": 5.382923616998596,
+          "audio_seconds": 20.58,
+          "response_bytes": 658604
+        },
+        {
+          "index": 6,
+          "latency_seconds": 5.400364946999616,
+          "audio_seconds": 20.58,
+          "response_bytes": 658604
+        },
+        {
+          "index": 7,
+          "latency_seconds": 5.400057765000383,
+          "audio_seconds": 20.58,
+          "response_bytes": 658604
+        },
+        {
+          "index": 8,
+          "latency_seconds": 5.422600265001165,
+          "audio_seconds": 20.58,
+          "response_bytes": 658604
+        }
+      ],
+      "errors": []
+    },
+    {
+      "summary": {
+        "concurrency": 2,
+        "requests": 8,
+        "successes": 8,
+        "errors": 0,
+        "wall_seconds": 23.509020810000948,
+        "audio_seconds": 155.16000000000003,
+        "mean_latency_seconds": 5.850822004000065,
+        "p50_latency_seconds": 5.809106159500516,
+        "p95_latency_seconds": 6.6765080869990925,
+        "mean_request_rtf": 0.301409836415247,
+        "aggregate_rtf": 0.15151469972931775,
+        "audio_seconds_per_wall_second": 6.600019679849599
+      },
+      "requests": [
+        {
+          "index": 1,
+          "latency_seconds": 5.28913630399984,
+          "audio_seconds": 19.12,
+          "response_bytes": 611884
+        },
+        {
+          "index": 2,
+          "latency_seconds": 5.732385671000884,
+          "audio_seconds": 19.24,
+          "response_bytes": 615724
+        },
+        {
+          "index": 3,
+          "latency_seconds": 5.8858266480001475,
+          "audio_seconds": 19.06,
+          "response_bytes": 609964
+        },
+        {
+          "index": 4,
+          "latency_seconds": 5.915878871999666,
+          "audio_seconds": 19.12,
+          "response_bytes": 611884
+        },
+        {
+          "index": 5,
+          "latency_seconds": 6.6765080869990925,
+          "audio_seconds": 20.42,
+          "response_bytes": 653484
+        },
+        {
+          "index": 6,
+          "latency_seconds": 5.6643033750006,
+          "audio_seconds": 19.12,
+          "response_bytes": 611884
+        },
+        {
+          "index": 7,
+          "latency_seconds": 6.1936783290002495,
+          "audio_seconds": 19.96,
+          "response_bytes": 638764
+        },
+        {
+          "index": 8,
+          "latency_seconds": 5.448858746000042,
+          "audio_seconds": 19.12,
+          "response_bytes": 611884
+        }
+      ],
+      "errors": []
+    },
+    {
+      "summary": {
+        "concurrency": 4,
+        "requests": 8,
+        "successes": 8,
+        "errors": 0,
+        "wall_seconds": 12.3050544430007,
+        "audio_seconds": 153.98000000000002,
+        "mean_latency_seconds": 6.035516030000053,
+        "p50_latency_seconds": 6.1444592369998645,
+        "p95_latency_seconds": 6.158395868000298,
+        "mean_request_rtf": 0.31355213239972896,
+        "aggregate_rtf": 0.0799133292830283,
+        "audio_seconds_per_wall_second": 12.513556986949064
+      },
+      "requests": [
+        {
+          "index": 1,
+          "latency_seconds": 6.14516686800016,
+          "audio_seconds": 19.28,
+          "response_bytes": 617004
+        },
+        {
+          "index": 2,
+          "latency_seconds": 6.143751605999569,
+          "audio_seconds": 19.26,
+          "response_bytes": 616364
+        },
+        {
+          "index": 3,
+          "latency_seconds": 6.1323271180008305,
+          "audio_seconds": 19.26,
+          "response_bytes": 616364
+        },
+        {
+          "index": 4,
+          "latency_seconds": 6.155731556000319,
+          "audio_seconds": 19.26,
+          "response_bytes": 616364
+        },
+        {
+          "index": 5,
+          "latency_seconds": 5.564556908000668,
+          "audio_seconds": 19.12,
+          "response_bytes": 611884
+        },
+        {
+          "index": 6,
+          "latency_seconds": 6.158395868000298,
+          "audio_seconds": 19.26,
+          "response_bytes": 616364
+        },
+        {
+          "index": 7,
+          "latency_seconds": 6.155804171999989,
+          "audio_seconds": 19.28,
+          "response_bytes": 617004
+        },
+        {
+          "index": 8,
+          "latency_seconds": 5.828394143998594,
+          "audio_seconds": 19.26,
+          "response_bytes": 616364
+        }
+      ],
+      "errors": []
+    }
+  ]
+}

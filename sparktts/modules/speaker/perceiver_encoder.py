@@ -13,7 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Adapted from https://github.com/lucidrains/naturalspeech2-pytorch/blob/659bec7f7543e7747e809e950cc2f84242fbeec7/naturalspeech2_pytorch/naturalspeech2_pytorch.py#L532
+# Contains code adapted from naturalspeech2-pytorch:
+# https://github.com/lucidrains/naturalspeech2-pytorch/blob/659bec7f7543e7747e809e950cc2f84242fbeec7/naturalspeech2_pytorch/naturalspeech2_pytorch.py#L532
+# Copyright (c) 2023 Phil Wang.
+# Licensed under the MIT License; see THIRD_PARTY_NOTICES.md.
 
 from collections import namedtuple
 from functools import wraps

@@ -24,78 +24,20 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# MODIFIED: Spark-TTS engineering optimization fork, 2026.
+# See the repository Git history for the complete change record.
+
 import json
 import math
 import os
 import re
-from typing import Dict, List, Tuple, Optional, Union
-
 import numpy as np
 import torch
 from torch.utils.dlpack import from_dlpack, to_dlpack
 import triton_python_backend_utils as pb_utils
 from transformers import AutoTokenizer
 
-from sparktts.utils.token_parser import TASK_TOKEN_MAP
-
-def process_prompt(
-    text: str,
-    prompt_text: Optional[str] = None,
-    global_token_ids: torch.Tensor = None,
-    semantic_token_ids: torch.Tensor = None,
-) -> Tuple[str, torch.Tensor]:
-    """
-    Process input for voice cloning.
-
-    Args:
-        text: The text input to be converted to speech.
-        prompt_text: Transcript of the prompt audio.
-        global_token_ids: Global token IDs extracted from reference audio.
-        semantic_token_ids: Semantic token IDs extracted from reference audio.
-
-    Returns:
-        Tuple containing the formatted input prompt and global token IDs.
-    """
-    # Convert global tokens to string format
-    global_tokens = "".join(
-        [f"<|bicodec_global_{i}|>" for i in global_token_ids.squeeze()]
-    )
-
-    
-    # Prepare the input tokens for the model
-    if prompt_text is not None:
-        # Include semantic tokens when prompt text is provided
-        semantic_tokens = "".join(
-            [f"<|bicodec_semantic_{i}|>" for i in semantic_token_ids.squeeze()]
-        )
-
-        inputs = [
-            TASK_TOKEN_MAP["tts"],
-            "<|start_content|>",
-            prompt_text,
-            text,
-            "<|end_content|>",
-            "<|start_global_token|>",
-            global_tokens,
-            "<|end_global_token|>",
-            "<|start_semantic_token|>",
-            semantic_tokens,
-        ]
-    else:
-        # Without prompt text, exclude semantic tokens
-        inputs = [
-            TASK_TOKEN_MAP["tts"],
-            "<|start_content|>",
-            text,
-            "<|end_content|>",
-            "<|start_global_token|>",
-            global_tokens,
-            "<|end_global_token|>",
-        ]
-
-    # Join all input components into a single string
-    inputs = "".join(inputs)
-    return inputs, global_token_ids
+from runtime.triton_trtllm.prompt_protocol import build_prompt
 
 
 class TritonPythonModel:
@@ -129,6 +71,7 @@ class TritonPythonModel:
         self.audio_chunk_size_scale_factor = float(model_params["audio_chunk_size_scale_factor"])  # scale speed
         self.audio_chunk_overlap_duration = float(model_params["audio_chunk_overlap_duration"])
         self.audio_tokenizer_frame_rate = int(model_params["audio_tokenizer_frame_rate"])
+        self.max_new_tokens = int(model_params.get("max_new_tokens", "2000"))
 
         # Initialize tokenizer
         llm_tokenizer_dir = model_params["llm_tokenizer_dir"]
@@ -163,7 +106,7 @@ class TritonPythonModel:
         """
         # convert input_ids to numpy, with shape [1, sequence_length]
         input_ids = input_ids.cpu().numpy()
-        max_tokens = 512
+        max_tokens = self.max_new_tokens
         input_dict = {
             "request_output_len": np.array([[max_tokens]], dtype=np.int32),
             "end_id": np.array([[self.tokenizer.eos_token_id]], dtype=np.int32),
@@ -329,9 +272,9 @@ class TritonPythonModel:
             target_text = target_text[0][0].decode('utf-8')
             
             # Prepare prompt for LLM
-            prompt, global_token_ids = process_prompt(
+            prompt, global_token_ids = build_prompt(
                 text=target_text,
-                prompt_text=reference_text,
+                reference_text=reference_text,
                 global_token_ids=global_tokens,
                 semantic_token_ids=semantic_tokens,
             )

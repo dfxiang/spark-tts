@@ -1,0 +1,31 @@
+ARG BASE_IMAGE=nvcr.io/nvidia/tritonserver:25.02-trtllm-python-py3
+FROM ${BASE_IMAGE}
+
+ENV PYTHONPATH=/workspace \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_NO_CACHE_DIR=1 \
+    SPARK_TTS_MODEL_DIR=/models/Spark-TTS-0.5B \
+    SPARK_TTS_VOICE_DIR=/data/voices \
+    SPARK_TTS_DEVICE=cuda:0 \
+    SPARK_TTS_LLM_DTYPE=bfloat16 \
+    SPARK_TTS_TRT_PRECISION=bf16 \
+    SPARK_TTS_TRT_MAX_BATCH_SIZE=4 \
+    SPARK_TTS_PRELOAD=1
+
+WORKDIR /workspace
+
+COPY runtime/triton_trtllm/sidecar/requirements.txt /tmp/unified-requirements.txt
+RUN python3 -m pip install -r /tmp/unified-requirements.txt \
+    && rm /tmp/unified-requirements.txt
+
+COPY api /workspace/api
+COPY cli /workspace/cli
+COPY sparktts /workspace/sparktts
+COPY runtime/triton_trtllm /workspace/runtime/triton_trtllm
+
+RUN chmod +x /workspace/runtime/triton_trtllm/sidecar/start_unified.sh
+
+EXPOSE 8000 8100 8101 8102
+
+ENTRYPOINT ["/workspace/runtime/triton_trtllm/sidecar/start_unified.sh"]

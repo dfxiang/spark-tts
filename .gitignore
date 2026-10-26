@@ -3,8 +3,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 pretrained_models/
+runtime/triton_trtllm/sidecar/artifacts/
+runtime/triton_trtllm/benchmark_results/
 results/
 demo/
+data/voices/
 # C extensions
 *.so
 .gradio/

@@ -1,0 +1,47 @@
+name: "audio_tokenizer"
+backend: "python"
+max_batch_size: 1
+
+dynamic_batching {
+  max_queue_delay_microseconds: 0
+}
+
+parameters [
+  {
+    key: "model_dir"
+    value: {string_value: "/models/Spark-TTS-0.5B"}
+  }
+]
+
+input [
+  {
+    name: "reference_wav"
+    data_type: TYPE_FP32
+    dims: [-1]
+  },
+  {
+    name: "reference_wav_len"
+    data_type: TYPE_INT32
+    dims: [1]
+  }
+]
+
+output [
+  {
+    name: "global_tokens"
+    data_type: TYPE_INT32
+    dims: [-1]
+  },
+  {
+    name: "semantic_tokens"
+    data_type: TYPE_INT32
+    dims: [-1]
+  }
+]
+
+instance_group [
+  {
+    count: 1
+    kind: KIND_CPU
+  }
+]

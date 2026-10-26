@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# MODIFIED: Spark-TTS engineering optimization fork, 2026.
+# See the repository Git history for the complete change record.
 
 import torch
 import numpy as np
@@ -22,7 +24,6 @@ from typing import Any, Dict, Tuple
 from transformers import Wav2Vec2FeatureExtractor, Wav2Vec2Model
 
 from sparktts.utils.file import load_config
-from sparktts.utils.audio import load_audio
 from sparktts.models.bicodec import BiCodec
 
 
@@ -71,6 +72,8 @@ class BiCodecTokenizer:
 
     def process_audio(self, wav_path: Path) -> Tuple[np.ndarray, torch.Tensor]:
         """load auido and get reference audio from wav path"""
+        from sparktts.utils.audio import load_audio
+
         wav = load_audio(
             wav_path,
             sampling_rate=self.config["sample_rate"],

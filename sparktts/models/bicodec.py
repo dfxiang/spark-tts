@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# MODIFIED: Spark-TTS engineering optimization fork, 2026.
+# See the repository Git history for the complete change record.
+
 import torch
 import torch.nn as nn
 from pathlib import Path
@@ -195,20 +198,36 @@ class BiCodec(nn.Module):
         Args:
             config (dict): Configuration parameters for MelSpectrogram.
         """
-        import torchaudio.transforms as TT
+        try:
+            import torchaudio.transforms as TT
 
-        self.mel_transformer = TT.MelSpectrogram(
-            config["sample_rate"],
-            config["n_fft"],
-            config["win_length"],
-            config["hop_length"],
-            config["mel_fmin"],
-            config["mel_fmax"],
-            n_mels=config["num_mels"],
-            power=1,
-            norm="slaney",
-            mel_scale="slaney",
-        )
+            self.mel_transformer = TT.MelSpectrogram(
+                config["sample_rate"],
+                config["n_fft"],
+                config["win_length"],
+                config["hop_length"],
+                config["mel_fmin"],
+                config["mel_fmax"],
+                n_mels=config["num_mels"],
+                power=1,
+                norm="slaney",
+                mel_scale="slaney",
+            )
+        except (ImportError, OSError):
+            from sparktts.utils.mel import MelSpectrogram
+
+            self.mel_transformer = MelSpectrogram(
+                config["sample_rate"],
+                config["n_fft"],
+                config["win_length"],
+                config["hop_length"],
+                config["mel_fmin"],
+                config["mel_fmax"],
+                n_mels=config["num_mels"],
+                power=1,
+                norm="slaney",
+                mel_scale="slaney",
+            )
 
     def remove_weight_norm(self):
         """Removes weight normalization from all layers."""

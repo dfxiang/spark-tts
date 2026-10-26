@@ -13,7 +13,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Adapted from https://github.com/descriptinc/descript-audio-codec under the Apache License 2.0
+# Contains code adapted from Descript Audio Codec:
+# https://github.com/descriptinc/descript-audio-codec
+# Copyright (c) 2023-present, Descript.
+# Licensed under the MIT License; see THIRD_PARTY_NOTICES.md.
 
 
 import torch
